@@ -20,7 +20,7 @@ bool loadOBJ(
 	std::vector<LiteMath::float3> temp_vertices; 
 	std::vector<LiteMath::float2> temp_uvs;
 	std::vector<LiteMath::float3> temp_normals;
-	float max = 0;
+	LiteMath::float3 min(0, 0, 0), max(0, 0, 0);
 
 	FILE * file = fopen(path, "r");
 	if( file == NULL )
@@ -39,12 +39,18 @@ bool loadOBJ(
 		if ( strcmp( lineHeader, "v" ) == 0 ) {
 			LiteMath::float3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
-			if (vertex.x > max)
-				max = vertex.x;
-			if (vertex.y > max)
-				max = vertex.y;
-			if (vertex.z > max)
-				max = vertex.z;
+			if (vertex.x < min.x)
+				min.x = vertex.x;
+			if (vertex.y < min.y)
+				min.y = vertex.y;
+			if (vertex.z < min.z)
+				min.z = vertex.z;
+			if (vertex.x > max.x)
+				max.x = vertex.x;
+			if (vertex.y > max.y)
+				max.y = vertex.y;
+			if (vertex.z > max.z)
+				max.z = vertex.z;
 			temp_vertices.push_back(vertex);
 		} else if ( strcmp( lineHeader, "vt" ) == 0 ) {
 			LiteMath::float2 uv;
@@ -80,6 +86,11 @@ bool loadOBJ(
 		}
 
 	}
+	
+	LiteMath::float3 center = (max - min) / 2;
+	float compress = (center.x > center.y) ? center.x : center.y;
+	compress = (compress > center.z) ? compress : center.z;
+	center += min;
 
 	// For each vertex of each triangle
 	for( unsigned int i=0; i<vertexIndices.size(); i++ ){
@@ -94,10 +105,12 @@ bool loadOBJ(
 		LiteMath::float2 uv = temp_uvs[ uvIndex-1 ];
 		LiteMath::float3 normal = temp_normals[ normalIndex-1 ];
 		
+		vertex = (vertex - center) / compress;
+		
 		// Put the attributes in buffers
-		out_vertices.push_back(vertex.x / max);
-		out_vertices.push_back(vertex.y / max);
-		out_vertices.push_back(vertex.z / max);
+		out_vertices.push_back(vertex.x);
+		out_vertices.push_back(vertex.y);
+		out_vertices.push_back(vertex.z);
 		out_uvs     .push_back(uv.x);
 		out_uvs     .push_back(uv.y);
 		out_normals .push_back(normal.x);
