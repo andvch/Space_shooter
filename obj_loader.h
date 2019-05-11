@@ -91,6 +91,10 @@ bool loadOBJ(
 	float compress = (center.x > center.y) ? center.x : center.y;
 	compress = (compress > center.z) ? compress : center.z;
 	center += min;
+	
+	out_vertices.clear();
+	out_uvs     .clear();
+	out_normals .clear();
 
 	// For each vertex of each triangle
 	for( unsigned int i=0; i<vertexIndices.size(); i++ ){

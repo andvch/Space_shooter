@@ -1,12 +1,12 @@
 #version 330 core
 
-out vec4 color;
+in vec2 uv;
 
-in vec2 UV;
+out vec4 color;
 
 uniform sampler2D diffuse;
 
 void main()
 {
-    color = vec4(texture(diffuse, UV).xyz, 1.0);
+	color = vec4(texture(diffuse, uv).xyz, 1.0);
 }
